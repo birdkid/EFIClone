@@ -1,7 +1,8 @@
 #!/bin/bash
 # EFI Partition Clone Script
 # Created by Ted Howe (c) 2018 | tedhowe@burke-howe.com | wombat94 on GitHub   | wombat94 on TonyMacx86
-# Modified by kobaltcore 2019  | cobaltcore@yandex.com  | kobaltkore on GitHub | byteminer on TonyMacx86 forums
+# Modified by kobaltcore 2019  | cobaltcore@yandex.com  | kobaltkore on GitHub | byteminer on TonyMacx86
+# Modified by Bird-Kid 2020    |                        | Bird-Kid on GitHub   | Bird-Kid on TonyMacx86
 
 # This script is designed to be a "post-flight" script run automatically by CCC at the end of a
 # clone task. It will copy the contents of the source drive's EFI partition to the destination drive's EFI
