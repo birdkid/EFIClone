@@ -223,10 +223,6 @@ writeTolog "destinationEFIPartition = $destinationEFIPartition"
 
 ### Sanity checks ###
 
-if [[ "$efiBootPartitionDisk" == "$destinationDisk" ]]; then
-	failGracefully 'Destination disk is the current EFI partition that was used to boot the computer, script exiting.' 'No source EFI Partition found. EFI Clone Script did not run!'
-fi
-
 if [[ "$sourceEFIPartition" == "" ]]; then
 	failGracefully 'No SourceEFIPartition Found, script exiting.' 'No source EFI Partition found. EFI Clone Script did not run!'
 fi
