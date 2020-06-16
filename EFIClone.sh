@@ -248,7 +248,15 @@ fi
 ### Mount the targets ###
 
 diskutil mount /dev/$sourceEFIPartition
+if (( $? != 0 )); then
+	failGracefully 'Mounting EFI source partition failed.'
+fi
+
 diskutil mount /dev/$destinationEFIPartition
+if (( $? != 0 )); then
+	failGracefully 'Mounting EFI destination partition failed.'
+fi
+
 writeTolog 'Drives mounted.'
 sourceEFIMountPoint="$( getDiskMountPoint "$sourceEFIPartition" )"
 writeTolog "sourceEFIMountPoint = $sourceEFIMountPoint"
