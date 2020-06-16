@@ -247,7 +247,7 @@ fi
 
 ### Mount the targets ###
 
-diskutil mount /dev/$sourceEFIPartition
+diskutil mount readOnly /dev/$sourceEFIPartition
 if (( $? != 0 )); then
 	failGracefully 'Mounting EFI source partition failed.'
 fi
