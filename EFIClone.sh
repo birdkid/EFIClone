@@ -174,7 +174,7 @@ sourceEFIPartition="$( getEFIVolume "$sourceDisk" )"
 # If we don't find an EFI partition on the disk that was identified by the volume path
 # we check to see if it is a coreStorage volume and get the disk number from there
 if [[ "$sourceEFIPartition" == "" ]]; then
-    sourceDisk=""
+	sourceDisk=""
 	sourceDisk=disk"$( getCoreStoragePhysicalDiskNumber "$sourceVolumeDisk" )"
 	if [[ "$sourceDisk" == "disk" ]]; then
 		sourceDisk=$sourceVolumeDisk
@@ -185,7 +185,7 @@ fi
 # If we still don't have an EFI partition then we check to see if the sourceVolumeDisk is an APFS
 # volume and find its physical disk
 if [[ "$sourceEFIPartition" == "" ]]; then
-    sourceDisk=""
+	sourceDisk=""
 	sourceDisk=disk"$( getAPFSPhysicalDiskNumber "$sourceVolumeDisk" )"
 	sourceEFIPartition="$( getEFIVolume "$sourceDisk" )"
 fi
@@ -249,14 +249,14 @@ sourceEFIPartitionSplit=($sourceEFIPartition)
 if [ "${#sourceEFIPartitionSplit[@]}" -gt 1 ]; then
 	writeTolog "More than one source partition. Script exiting."
 	osascript -e 'display notification "More than one source partition. EFI Clone Script did not run!" with title "EFI Clone Script"'
-    exit 0
+	exit 0
 fi
 
 destinationEFIPartitionSplit=($destinationEFIPartition)
 if [ "${#destinationEFIPartitionSplit[@]}" -gt 1 ]; then
 	writeTolog "More than one destination partition. Script exiting."
 	osascript -e 'display notification "More than one destination partition. EFI Clone Script did not run!" with title "EFI Clone Script"'
-    exit 0
+	exit 0
 fi
 
 ### Mount the targets ###
