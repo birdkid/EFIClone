@@ -321,7 +321,7 @@ if [[ "$TEST_SWITCH" != "Y" ]]; then
 	if [[ "$sourceEFIHash" == "$destinationEFIHash" ]]; then
 		osascript -e 'display notification "EFI Clone Script completed successfully." with title "EFI Clone Script"'
 	else
-		osascript -e 'display notification "EFI Clone failed - destionation data did not match source after copy." with title "EFI Clone Scipt"'
+		osascript -e 'display notification "EFI Clone failed - destionation data did not match source after copy." with title "EFI Clone Script"'
 		exit 1
 	fi
 fi
