@@ -247,12 +247,12 @@ fi
 
 ### Mount the targets ###
 
-diskutil mount readOnly /dev/$sourceEFIPartition
+diskutil quiet mount readOnly /dev/$sourceEFIPartition
 if (( $? != 0 )); then
 	failGracefully 'Mounting EFI source partition failed.'
 fi
 
-diskutil mount /dev/$destinationEFIPartition
+diskutil quiet mount /dev/$destinationEFIPartition
 if (( $? != 0 )); then
 	failGracefully 'Mounting EFI destination partition failed.'
 fi
@@ -284,20 +284,20 @@ fi
 
 writeTolog 'Comparing checksums of EFI directories...'
 writeTolog "----------------------------------------"
-pushd "$sourceEFIMountPoint/"
+pushd "$sourceEFIMountPoint/" > /dev/null
 sourceEFIHash="$( getEFIDirectoryHash "$sourceEFIMountPoint/EFI" )"
 logEFIDirectoryHashDetails "$sourceEFIMountPoint"
-popd
-pushd "$destinationEFIMountPoint/"
+popd > /dev/null
+pushd "$destinationEFIMountPoint/" > /dev/null
 destinationEFIHash="$( getEFIDirectoryHash "$destinationEFIMountPoint/EFI" )"
 logEFIDirectoryHashDetails "$sourceEFIMountPoint"
-popd
+popd > /dev/null
 writeTolog "----------------------------------------"
 writeTolog "Source directory hash: $sourceEFIHash."
 writeTolog "Destination directory hash: $destinationEFIHash."
 
-diskutil unmount /dev/$destinationEFIPartition
-diskutil unmount /dev/$sourceEFIPartition
+diskutil quiet unmount /dev/$destinationEFIPartition
+diskutil quiet unmount /dev/$sourceEFIPartition
 writeTolog 'EFI partitions unmounted.'
 
 if [[ "$TEST_SWITCH" != "Y" ]]; then
