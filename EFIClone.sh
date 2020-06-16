@@ -83,7 +83,6 @@ function getDiskIDfromUUID () {
 ### Start Script ###
 
 writeTolog "***** EFI Clone Script Started *****"
-writeTolog "Working Directory = $PWD"
 writeTolog "Running $0"
 
 # Determine which disk clone application called the script (based on number of parameters)
