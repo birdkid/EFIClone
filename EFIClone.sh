@@ -34,6 +34,10 @@ function writeTolog () {
 	echo "[`date`] - ${*}" >> ${LOG_FILE}
 }
 
+function displayNotification () {
+	osascript -e "display notification \"${*}\" with title \"EFI Clone Script\""
+}
+
 function getDiskNumber () {
 	echo "$( diskutil info "$1" | grep 'Part of Whole' | rev | cut -d ' ' -f1 | rev )"
 }
@@ -107,7 +111,7 @@ elif [[ "$#" == "4" ]]; then
 		writeTolog "CCC completed with success, the EFI Clone Script will run"
 	else
 		writeTolog "CCC did not exit with success, the EFI Clone Script will not run"
-		osascript -e 'display notification "CCC Task failed, EFI Clone Script did not run" with title "EFI Clone Script"'
+		displayNotification 'CCC Task failed, EFI Clone Script did not run'
 		exit 0
 	fi
 
@@ -115,7 +119,7 @@ elif [[ "$#" == "4" ]]; then
 		writeTolog "CCC clone was not to a disk image. the EFI Clone Script will run"
 	else
 		writeTolog "CCC Clone destination was a disk image file. The EFI Clone Script will not run"
-		osascript -e 'display notification "CCC Clone destination was a disk image. Clone script did not run." with title "EFI Clone Script"'
+		displayNotification 'CCC Clone destination was a disk image. Clone script did not run.'
 		exit 0
 	fi
 
@@ -135,7 +139,7 @@ elif [[ "$#" == "6" ]]; then
 else
 	writeTolog "$# parameters were passed in. This is an unsupported number of parameters. Exiting now"
 	echo "$# parameters were passed in. This is an unsupported number of parameters. Exiting now"
-	osascript -e 'display notification "Unsupported set of parameters passed in. EFI Clone script did not run!" with title "EFI Clone Script"'
+	displayNotification 'Unsupported set of parameters passed in. EFI Clone script did not run!'
 	exit 0
 fi
 
@@ -156,7 +160,7 @@ fi
 # If it's still empty, we got passed an invalid path, so we exit
 if [[ "$sourceVolumeDisk" == "" ]]; then
 	writeTolog "sourceVolumeDisk could not be determined, script exiting."
-	osascript -e 'display notification "No sourceVolumeDisk found. EFI Clone Script did not run!" with title "EFI Clone Script"'
+	displayNotification 'No sourceVolumeDisk found. EFI Clone Script did not run!'
 	exit 0
 fi
 
@@ -223,39 +227,39 @@ writeTolog "destinationEFIPartition = $destinationEFIPartition"
 
 if [[ "$efiBootPartitionDisk" == "$destinationDisk" ]]; then
 	writeTolog "Destination disk is the current EFI partition that was used to boot the computer, script exiting."
-	osascript -e 'display notification "No source EFI Partition found. EFI Clone Script did not run!" with title "EFI Clone Script"'
+	displayNotification 'No source EFI Partition found. EFI Clone Script did not run!'
 	exit 0
 fi
 
 if [[ "$sourceEFIPartition" == "" ]]; then
 	writeTolog "No SourceEFIPartition Found, script exiting."
-	osascript -e 'display notification "No source EFI Partition found. EFI Clone Script did not run!" with title "EFI Clone Script"'
+	displayNotification 'No source EFI Partition found. EFI Clone Script did not run!'
 	exit 0
 fi
 
 if [[ "$destinationEFIPartition" == "" ]]; then
 	writeTolog "No DestinationEFIPartition Found, script exiting."
-	osascript -e 'display notification "No destination EFI Partition found. EFI Clone Script did not run!" with title "EFI Clone Script"'
+	displayNotification 'No destination EFI Partition found. EFI Clone Script did not run!'
 	exit 0
 fi
 
 if [[ "$sourceEFIPartition" == "$destinationEFIPartition" ]]; then
 	writeTolog "Source and Destination EFI Partitions are the same. Script exiting."
-	osascript -e 'display notification "Source and Destination EFI partitions are the same. EFI Clone Script did not run!" with title "EFI Clone Script"'
+	displayNotification 'Source and Destination EFI partitions are the same. EFI Clone Script did not run!'
 	exit 0
 fi
 
 sourceEFIPartitionSplit=($sourceEFIPartition)
 if [ "${#sourceEFIPartitionSplit[@]}" -gt 1 ]; then
 	writeTolog "More than one source partition. Script exiting."
-	osascript -e 'display notification "More than one source partition. EFI Clone Script did not run!" with title "EFI Clone Script"'
+	displayNotification 'More than one source partition. EFI Clone Script did not run!'
 	exit 0
 fi
 
 destinationEFIPartitionSplit=($destinationEFIPartition)
 if [ "${#destinationEFIPartitionSplit[@]}" -gt 1 ]; then
 	writeTolog "More than one destination partition. Script exiting."
-	osascript -e 'display notification "More than one destination partition. EFI Clone Script did not run!" with title "EFI Clone Script"'
+	displayNotification 'More than one destination partition. EFI Clone Script did not run!'
 	exit 0
 fi
 
@@ -319,9 +323,9 @@ writeTolog "EFIClone.sh complete"
 
 if [[ "$TEST_SWITCH" != "Y" ]]; then
 	if [[ "$sourceEFIHash" == "$destinationEFIHash" ]]; then
-		osascript -e 'display notification "EFI Clone Script completed successfully." with title "EFI Clone Script"'
+		displayNotification 'EFI Clone Script completed successfully.'
 	else
-		osascript -e 'display notification "EFI Clone failed - destionation data did not match source after copy." with title "EFI Clone Script"'
+		displayNotification 'EFI Clone failed - destionation data did not match source after copy.'
 		exit 1
 	fi
 fi
