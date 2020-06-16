@@ -60,6 +60,31 @@ function getEFIVolume () {
 	echo "$( diskutil list | grep "$1s" | grep "EFI" | rev | cut -d ' ' -f 1 | rev )"
 }
 
+function getEFIPartition () {
+	local volumeDisk="$1"
+	local disk=$volumeDisk
+	local EFIPartition="$( getEFIVolume "$disk" )"
+
+	# If we don't find an EFI partition on the disk that was identified by the volume path
+	# we check to see if it is a coreStorage volume and get the disk number from there
+	if [[ "$EFIPartition" == "" ]]; then
+		disk='disk'"$( getCoreStoragePhysicalDiskNumber "$volumeDisk" )"
+		if [[ "$disk" == "disk" ]]; then
+			disk=$volumeDisk
+		fi
+		EFIPartition="$( getEFIVolume "$disk" )"
+	fi
+
+	# If we still don't have an EFI partition then we check to see if the volumeDisk is an APFS
+	# volume and find its physical disk
+	if [[ "$EFIPartition" == "" ]]; then
+		disk='disk'"$( getAPFSPhysicalDiskNumber "$volumeDisk" )"
+		EFIPartition="$( getEFIVolume "$disk" )"
+	fi
+
+	echo "$EFIPartition"
+}
+
 function getDiskMountPoint () {
 	echo "$( diskutil info "$1" | grep 'Mount Point' | rev | cut -d ':' -f 1 | rev | awk '{$1=$1;print}' )"
 }
@@ -70,6 +95,15 @@ function getEFIDirectoryHash () {
 
 function logEFIDirectoryHashDetails () {
 	echo "$( find -s . -not -path '*/\.*' -type f \( ! -iname ".*" \) -print0 | xargs -0 shasum )" >> ${LOG_FILE}
+}
+
+function collectEFIHash () {
+	local EFIMountPoint="$1"
+	pushd "$EFIMountPoint/" > /dev/null
+	EFIHash="$( getEFIDirectoryHash "$EFIMountPoint/EFI" )"
+	logEFIDirectoryHashDetails "$EFIMountPoint"
+	popd > /dev/null
+	echo "$EFIHash"
 }
 
 function getSystemBootVolumeName () {
@@ -143,10 +177,10 @@ else
 	failGracefully "Parameter count of $# is not supported." 'Unsupported set of parameters received.'
 fi
 
-writeTolog "sourceVolume = $sourceVolume"
-
 
 ### Figure out source target ###
+
+writeTolog "sourceVolume = $sourceVolume"
 
 sourceVolumeDisk="$( getDiskNumber "$sourceVolume" )"
 
@@ -164,60 +198,19 @@ fi
 
 writeTolog "sourceVolumeDisk = $sourceVolumeDisk"
 
-writeTolog "destinationVolume = $destinationVolume"
-
-destinationVolumeDisk="$( getDiskNumber "$destinationVolume" )"
-
-writeTolog "destinationVolumeDisk = $destinationVolumeDisk"
-sourceDisk=$sourceVolumeDisk
-sourceEFIPartition="$( getEFIVolume "$sourceDisk" )"
-
-# If we don't find an EFI partition on the disk that was identified by the volume path
-# we check to see if it is a coreStorage volume and get the disk number from there
-if [[ "$sourceEFIPartition" == "" ]]; then
-	sourceDisk=""
-	sourceDisk=disk"$( getCoreStoragePhysicalDiskNumber "$sourceVolumeDisk" )"
-	if [[ "$sourceDisk" == "disk" ]]; then
-		sourceDisk=$sourceVolumeDisk
-	fi
-	sourceEFIPartition="$( getEFIVolume "$sourceDisk" )"
-fi
-
-# If we still don't have an EFI partition then we check to see if the sourceVolumeDisk is an APFS
-# volume and find its physical disk
-if [[ "$sourceEFIPartition" == "" ]]; then
-	sourceDisk=""
-	sourceDisk=disk"$( getAPFSPhysicalDiskNumber "$sourceVolumeDisk" )"
-	sourceEFIPartition="$( getEFIVolume "$sourceDisk" )"
-fi
-
+sourceEFIPartition="$( getEFIPartition "$sourceVolumeDisk" )"
 writeTolog "sourceEFIPartition = $sourceEFIPartition"
 
 
 ### Figure out destination target ###
 
-destinationDisk=$destinationVolumeDisk
-destinationEFIPartition="$( getEFIVolume "$destinationDisk" )"
+writeTolog "destinationVolume = $destinationVolume"
 
-# If we don't find an EFI partition on the disk that was identified by the volume path
-# we check to see if it is a coreStorage volume and get the disk number from there
-if [[ "$destinationEFIPartition" == "" ]]; then
-	destinationDisk=""
-	destinationDisk=disk"$( getCoreStoragePhysicalDiskNumber "$destinationVolumeDisk" )"
-	if [[ "$destinationDisk" == "disk" ]];	then
-		destinationDisk=$destinationVolumeDisk
-	fi
-	destinationEFIPartition="$( getEFIVolume "$destinationDisk" )"
-fi
+destinationVolumeDisk="$( getDiskNumber "$destinationVolume" )"
 
-# If we still don't have an EFI partition then we check to see if the destinationVolumeDisk is an APFS
-# volume and find its physical disk
-if [[ "$destinationEFIPartition" == "" ]]; then
-	destinationDisk=""
-	destinationDisk=disk"$( getAPFSPhysicalDiskNumber "$destinationVolumeDisk" )"
-	destinationEFIPartition="$( getEFIVolume "$destinationDisk" )"
-fi
+writeTolog "destinationVolumeDisk = $destinationVolumeDisk"
 
+destinationEFIPartition="$( getEFIPartition "$destinationVolumeDisk" )"
 writeTolog "destinationEFIPartition = $destinationEFIPartition"
 
 
@@ -284,14 +277,8 @@ fi
 
 writeTolog 'Comparing checksums of EFI directories...'
 writeTolog "----------------------------------------"
-pushd "$sourceEFIMountPoint/" > /dev/null
-sourceEFIHash="$( getEFIDirectoryHash "$sourceEFIMountPoint/EFI" )"
-logEFIDirectoryHashDetails "$sourceEFIMountPoint"
-popd > /dev/null
-pushd "$destinationEFIMountPoint/" > /dev/null
-destinationEFIHash="$( getEFIDirectoryHash "$destinationEFIMountPoint/EFI" )"
-logEFIDirectoryHashDetails "$sourceEFIMountPoint"
-popd > /dev/null
+sourceEFIHash="$( collectEFIHash "$sourceEFIMountPoint" )"
+destinationEFIHash="$( collectEFIHash "$destinationEFIMountPoint" )"
 writeTolog "----------------------------------------"
 writeTolog "Source directory hash: $sourceEFIHash."
 writeTolog "Destination directory hash: $destinationEFIHash."
