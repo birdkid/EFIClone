@@ -92,8 +92,8 @@ writeTolog "Running $0"
 # - if possible do app-specific sanity checks in order to exit without taking action if necessary
 if [[ "$#" == "2" ]]; then
 	writeTolog "Called From Shell with the following parameters:"
-	writeTolog "1: Source Path = $1"   # Source path
-	writeTolog "2: Destination Path = $2"   # Mounted disk image destination path
+	writeTolog "1: Source Path = $1"
+	writeTolog "2: Destination Path = $2"
 
 	sourceVolume=$1
 	destinationVolume=$2
