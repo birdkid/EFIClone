@@ -137,8 +137,8 @@ elif [[ "$#" == "6" ]]; then
 	sourceVolume=$2
 	destinationVolume=$4
 else
-	writeTolog "$# parameters were passed in. This is an unsupported number of parameters. Exiting now"
 	echo "$# parameters were passed in. This is an unsupported number of parameters. Exiting now"
+	writeTolog "$# parameters were passed in. This is an unsupported number of parameters. Exiting now"
 	displayNotification 'Unsupported set of parameters passed in. EFI Clone script did not run!'
 	exit 1
 fi
@@ -283,49 +283,44 @@ if [[ "$TEST_SWITCH" == "Y" ]]; then
 	writeTolog "rsync command calculated is..."
 	writeTolog "rsync -av --exclude='.*'' "$sourceEFIMountPoint/" "$destinationEFIMountPoint/""
 	writeTolog "THE BELOW OUTPUT IS FROM AN RSYNC DRY RUN! NO DATA HAS BEEN MODIFIED!"
+	writeTolog "----------------------------------------"
 	rsync --dry-run -av --exclude=".*" --delete "$sourceEFIMountPoint/" "$destinationEFIMountPoint/" >> ${LOG_FILE}
+	writeTolog "----------------------------------------"
 	writeTolog "********* Test Simulation - end of file delete/copy section."
 else
 	writeTolog "Synchronizing all files with rsync --delete option"
 	writeTolog "from $sourceEFIMountPoint/EFI to $destinationEFIMountPoint. Details follow..."
-	writeTolog "--------------------------------------------------------------------"
+	writeTolog "----------------------------------------"
 	rsync -av --exclude=".*" --delete "$sourceEFIMountPoint/" "$destinationEFIMountPoint/" >> ${LOG_FILE}
-	writeTolog "--------------------------------------------------------------------"
+	writeTolog "----------------------------------------"
 	writeTolog "Contents of Source EFI Partition copied to Destination EFI Partition"
 fi
 
-writeTolog "Compare the checksums of the EFI directories on the source and destination partitions"
-writeTolog "-------------------------------------------------------------------------------------"
+writeTolog "Comparing the checksums of the EFI directories on the source and destination partitions"
 pushd "$sourceEFIMountPoint/"
 sourceEFIHash="$( getEFIDirectoryHash "$sourceEFIMountPoint/EFI" )"
-writeTolog "Source directory hash: $sourceEFIHash"
 temp="$( logEFIDirectoryHashDetails "$sourceEFIMountPoint" )"
 popd
 pushd "$destinationEFIMountPoint/"
 destinationEFIHash="$( getEFIDirectoryHash "$destinationEFIMountPoint/EFI" )"
-writeTolog "Destination directory hash: $destinationEFIHash"
 temp="$( logEFIDirectoryHashDetails "$sourceEFIMountPoint" )"
 popd
+writeTolog "Source directory hash: $sourceEFIHash"
+writeTolog "Destination directory hash: $destinationEFIHash"
+
+diskutil unmount /dev/$destinationEFIPartition
+diskutil unmount /dev/$sourceEFIPartition
+writeTolog "EFI Partitions Unmounted"
 
 if [[ "$TEST_SWITCH" != "Y" ]]; then
 	if [[ "$sourceEFIHash" == "$destinationEFIHash" ]]; then
 		writeTolog "Directory hashes match! file copy successful"
-	else
-		writeTolog "Directory hashes differ! file copy unsuccessful"
-	fi
-fi
-
-writeTolog "-------------------------------------------------------------------------------------"
-diskutil unmount /dev/$destinationEFIPartition
-diskutil unmount /dev/$sourceEFIPartition
-writeTolog "EFI Partitions Unmounted"
-writeTolog "EFIClone.sh complete"
-
-if [[ "$TEST_SWITCH" != "Y" ]]; then
-	if [[ "$sourceEFIHash" == "$destinationEFIHash" ]]; then
 		displayNotification 'EFI Clone Script completed successfully.'
 	else
+		writeTolog "Directory hashes differ! file copy unsuccessful"
 		displayNotification 'EFI Clone failed - destionation data did not match source after copy.'
 		exit 1
 	fi
 fi
+
+writeTolog "EFI Clone Script completed"
