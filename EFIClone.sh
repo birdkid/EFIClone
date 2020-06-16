@@ -39,8 +39,8 @@ function displayNotification () {
 }
 
 function failGracefully () {
-	writeTolog "$1"
-	displayNotification "${2:-$logMsg}"
+	writeTolog "$1 Exiting."
+	displayNotification "${2:-$logMsg} EFI Clone Script failed."
 	exit "${3:-1}"
 }
 
@@ -92,43 +92,43 @@ function getDiskIDfromUUID () {
 
 ### Start Script ###
 
-writeTolog "***** EFI Clone Script Started *****"
-writeTolog "Running $0"
+writeTolog 'Starting EFI Clone Script...'
+writeTolog "Running $0..."
 
 # Determine which disk clone application called the script (based on number of parameters)
 # - log details
 # - set up initial parameters
 # - if possible do app-specific sanity checks in order to exit without taking action if necessary
 if [[ "$#" == "2" ]]; then
-	writeTolog "Called From Shell with the following parameters:"
+	writeTolog 'Running in "Shell" mode:'
 	writeTolog "1: Source Path = $1"
 	writeTolog "2: Destination Path = $2"
 
 	sourceVolume=$1
 	destinationVolume=$2
 elif [[ "$#" == "4" ]]; then
-	writeTolog "Called From Carbon Copy Cloner with the following parameters:"
+	writeTolog 'Running in "Carbon Copy Cloner" mode:'
 	writeTolog "1: Source Path = $1"
 	writeTolog "2: Destination Path = $2"
 	writeTolog "3: CCC Exit Status = $3"
 	writeTolog "4: Disk image file path = $4"
 
 	if [[ "$3" == "0" ]]; then
-		writeTolog "CCC completed with success, the EFI Clone Script will run"
+		writeTolog 'Check passed: CCC completed with success.'
 	else
-		failGracefully 'CCC did not exit with success, the EFI Clone Script will not run' 'CCC Task failed, EFI Clone Script did not run'
+		failGracefully 'CCC did not exit with success.' 'CCC task failed.'
 	fi
 
 	if [[ "$4" == "" ]]; then
-		writeTolog "CCC clone was not to a disk image. the EFI Clone Script will run"
+		writeTolog "Check passed: CCC clone was not to a disk image."
 	else
-		failGracefully 'CCC Clone destination was a disk image file. The EFI Clone Script will not run' 'CCC Clone destination was a disk image. Clone script did not run.'
+		failGracefully 'CCC clone destination was a disk image file.' 'CCC disk image clone destinations are not supported.'
 	fi
 
 	sourceVolume=$1
 	destinationVolume=$2
 elif [[ "$#" == "6" ]]; then
-	writeTolog "Called From SuperDuper with the following parameters:"
+	writeTolog 'Running in "SuperDuper" mode:'
 	writeTolog "1: Source Disk Name = $1"
 	writeTolog "2: Source Mount Path = $2"
 	writeTolog "3: Destination Disk Name = $3"
@@ -139,8 +139,8 @@ elif [[ "$#" == "6" ]]; then
 	sourceVolume=$2
 	destinationVolume=$4
 else
-	echo "$# parameters were passed in. This is an unsupported number of parameters. Exiting now"
-	failGracefully "$# parameters were passed in. This is an unsupported number of parameters. Exiting now" 'Unsupported set of parameters passed in. EFI Clone script did not run!'
+	echo "Parameter count of $# is not supported."
+	failGracefully "Parameter count of $# is not supported." 'Unsupported set of parameters received.'
 fi
 
 writeTolog "sourceVolume = $sourceVolume"
@@ -159,7 +159,7 @@ fi
 
 # If it's still empty, we got passed an invalid path, so we exit
 if [[ "$sourceVolumeDisk" == "" ]]; then
-	failGracefully 'sourceVolumeDisk could not be determined, script exiting.' 'No sourceVolumeDisk found. EFI Clone Script did not run!'
+	failGracefully 'Source Volume Disk not found.'
 fi
 
 writeTolog "sourceVolumeDisk = $sourceVolumeDisk"
@@ -224,32 +224,32 @@ writeTolog "destinationEFIPartition = $destinationEFIPartition"
 ### Sanity checks ###
 
 if [[ "$sourceEFIPartition" == "" ]]; then
-	failGracefully 'No SourceEFIPartition Found, script exiting.' 'No source EFI Partition found. EFI Clone Script did not run!'
+	failGracefully 'EFI source partition not found.'
 fi
 
 if [[ "$destinationEFIPartition" == "" ]]; then
-	failGracefully 'No DestinationEFIPartition Found, script exiting.' 'No destination EFI Partition found. EFI Clone Script did not run!'
+	failGracefully 'EFI destination partition not found.'
 fi
 
 if [[ "$sourceEFIPartition" == "$destinationEFIPartition" ]]; then
-	failGracefully 'Source and Destination EFI Partitions are the same. Script exiting.' 'Source and Destination EFI partitions are the same. EFI Clone Script did not run!'
+	failGracefully 'EFI source and destination partitions are the same.'
 fi
 
 sourceEFIPartitionSplit=($sourceEFIPartition)
 if [ "${#sourceEFIPartitionSplit[@]}" -gt 1 ]; then
-	failGracefully 'More than one source partition. Script exiting.' 'More than one source partition. EFI Clone Script did not run!'
+	failGracefully 'Multiple EFI source partitions found.'
 fi
 
 destinationEFIPartitionSplit=($destinationEFIPartition)
 if [ "${#destinationEFIPartitionSplit[@]}" -gt 1 ]; then
-	failGracefully 'More than one destination partition. Script exiting.' 'More than one destination partition. EFI Clone Script did not run!'
+	failGracefully 'Multiple EFI destination partitions found.'
 fi
 
 ### Mount the targets ###
 
 diskutil mount /dev/$sourceEFIPartition
 diskutil mount /dev/$destinationEFIPartition
-writeTolog "Drives mounted"
+writeTolog 'Drives mounted.'
 sourceEFIMountPoint="$( getDiskMountPoint "$sourceEFIPartition" )"
 writeTolog "sourceEFIMountPoint = $sourceEFIMountPoint"
 
@@ -260,47 +260,45 @@ writeTolog "destinationEFIMountPoint = $destinationEFIMountPoint"
 ### Execute the synchronization ###
 
 if [[ "$TEST_SWITCH" == "Y" ]]; then
-	writeTolog "********* Test simulation - file delete/copy would happen here. "
-	writeTolog "rsync command will be executed with the --dry-run option"
-	writeTolog "rsync command calculated is..."
-	writeTolog "rsync -av --exclude='.*'' "$sourceEFIMountPoint/" "$destinationEFIMountPoint/""
+	writeTolog 'Simulating file synchronization...'
+	writeTolog 'The following rsync command will be executed with the "--dry-run" option:'
+	writeTolog "rsync -av --exclude='.*'' \"$sourceEFIMountPoint/\" \"$destinationEFIMountPoint/\""
 	writeTolog "THE BELOW OUTPUT IS FROM AN RSYNC DRY RUN! NO DATA HAS BEEN MODIFIED!"
 	writeTolog "----------------------------------------"
 	rsync --dry-run -av --exclude=".*" --delete "$sourceEFIMountPoint/" "$destinationEFIMountPoint/" >> ${LOG_FILE}
 	writeTolog "----------------------------------------"
-	writeTolog "********* Test Simulation - end of file delete/copy section."
 else
-	writeTolog "Synchronizing all files with rsync --delete option"
-	writeTolog "from $sourceEFIMountPoint/EFI to $destinationEFIMountPoint. Details follow..."
+	writeTolog "Synchronizing files from $sourceEFIMountPoint/EFI to $destinationEFIMountPoint..."
 	writeTolog "----------------------------------------"
 	rsync -av --exclude=".*" --delete "$sourceEFIMountPoint/" "$destinationEFIMountPoint/" >> ${LOG_FILE}
 	writeTolog "----------------------------------------"
-	writeTolog "Contents of Source EFI Partition copied to Destination EFI Partition"
 fi
 
-writeTolog "Comparing the checksums of the EFI directories on the source and destination partitions"
+writeTolog 'Comparing checksums of EFI directories...'
+writeTolog "----------------------------------------"
 pushd "$sourceEFIMountPoint/"
 sourceEFIHash="$( getEFIDirectoryHash "$sourceEFIMountPoint/EFI" )"
-temp="$( logEFIDirectoryHashDetails "$sourceEFIMountPoint" )"
+logEFIDirectoryHashDetails "$sourceEFIMountPoint"
 popd
 pushd "$destinationEFIMountPoint/"
 destinationEFIHash="$( getEFIDirectoryHash "$destinationEFIMountPoint/EFI" )"
-temp="$( logEFIDirectoryHashDetails "$sourceEFIMountPoint" )"
+logEFIDirectoryHashDetails "$sourceEFIMountPoint"
 popd
-writeTolog "Source directory hash: $sourceEFIHash"
-writeTolog "Destination directory hash: $destinationEFIHash"
+writeTolog "----------------------------------------"
+writeTolog "Source directory hash: $sourceEFIHash."
+writeTolog "Destination directory hash: $destinationEFIHash."
 
 diskutil unmount /dev/$destinationEFIPartition
 diskutil unmount /dev/$sourceEFIPartition
-writeTolog "EFI Partitions Unmounted"
+writeTolog 'EFI partitions unmounted.'
 
 if [[ "$TEST_SWITCH" != "Y" ]]; then
 	if [[ "$sourceEFIHash" == "$destinationEFIHash" ]]; then
-		writeTolog "Directory hashes match! file copy successful"
+		writeTolog "Directory hashes match; files copied successfully."
 		displayNotification 'EFI Clone Script completed successfully.'
 	else
-		failGracefully 'Directory hashes differ! file copy unsuccessful' 'EFI Clone failed - destionation data did not match source after copy.'
+		failGracefully 'Directory hashes differ; copying failed.' 'EFI copied unsuccessfully; files do not match source.'
 	fi
 fi
 
-writeTolog "EFI Clone Script completed"
+writeTolog 'EFI Clone Script completed.'
