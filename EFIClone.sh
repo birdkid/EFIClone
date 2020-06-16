@@ -224,6 +224,7 @@ writeTolog "destinationEFIPartition = $destinationEFIPartition"
 if [[ "$efiBootPartitionDisk" == "$destinationDisk" ]]; then
 	writeTolog "Destination disk is the current EFI partition that was used to boot the computer, script exiting."
 	osascript -e 'display notification "No source EFI Partition found. EFI Clone Script did not run!" with title "EFI Clone Script"'
+	exit 0
 fi
 
 if [[ "$sourceEFIPartition" == "" ]]; then
