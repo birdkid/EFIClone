@@ -112,7 +112,7 @@ elif [[ "$#" == "4" ]]; then
 	else
 		writeTolog "CCC did not exit with success, the EFI Clone Script will not run"
 		displayNotification 'CCC Task failed, EFI Clone Script did not run'
-		exit 0
+		exit 1
 	fi
 
 	if [[ "$4" == "" ]]; then
@@ -120,7 +120,7 @@ elif [[ "$#" == "4" ]]; then
 	else
 		writeTolog "CCC Clone destination was a disk image file. The EFI Clone Script will not run"
 		displayNotification 'CCC Clone destination was a disk image. Clone script did not run.'
-		exit 0
+		exit 1
 	fi
 
 	sourceVolume=$1
@@ -140,7 +140,7 @@ else
 	writeTolog "$# parameters were passed in. This is an unsupported number of parameters. Exiting now"
 	echo "$# parameters were passed in. This is an unsupported number of parameters. Exiting now"
 	displayNotification 'Unsupported set of parameters passed in. EFI Clone script did not run!'
-	exit 0
+	exit 1
 fi
 
 writeTolog "sourceVolume = $sourceVolume"
@@ -161,7 +161,7 @@ fi
 if [[ "$sourceVolumeDisk" == "" ]]; then
 	writeTolog "sourceVolumeDisk could not be determined, script exiting."
 	displayNotification 'No sourceVolumeDisk found. EFI Clone Script did not run!'
-	exit 0
+	exit 1
 fi
 
 writeTolog "sourceVolumeDisk = $sourceVolumeDisk"
@@ -228,39 +228,39 @@ writeTolog "destinationEFIPartition = $destinationEFIPartition"
 if [[ "$efiBootPartitionDisk" == "$destinationDisk" ]]; then
 	writeTolog "Destination disk is the current EFI partition that was used to boot the computer, script exiting."
 	displayNotification 'No source EFI Partition found. EFI Clone Script did not run!'
-	exit 0
+	exit 1
 fi
 
 if [[ "$sourceEFIPartition" == "" ]]; then
 	writeTolog "No SourceEFIPartition Found, script exiting."
 	displayNotification 'No source EFI Partition found. EFI Clone Script did not run!'
-	exit 0
+	exit 1
 fi
 
 if [[ "$destinationEFIPartition" == "" ]]; then
 	writeTolog "No DestinationEFIPartition Found, script exiting."
 	displayNotification 'No destination EFI Partition found. EFI Clone Script did not run!'
-	exit 0
+	exit 1
 fi
 
 if [[ "$sourceEFIPartition" == "$destinationEFIPartition" ]]; then
 	writeTolog "Source and Destination EFI Partitions are the same. Script exiting."
 	displayNotification 'Source and Destination EFI partitions are the same. EFI Clone Script did not run!'
-	exit 0
+	exit 1
 fi
 
 sourceEFIPartitionSplit=($sourceEFIPartition)
 if [ "${#sourceEFIPartitionSplit[@]}" -gt 1 ]; then
 	writeTolog "More than one source partition. Script exiting."
 	displayNotification 'More than one source partition. EFI Clone Script did not run!'
-	exit 0
+	exit 1
 fi
 
 destinationEFIPartitionSplit=($destinationEFIPartition)
 if [ "${#destinationEFIPartitionSplit[@]}" -gt 1 ]; then
 	writeTolog "More than one destination partition. Script exiting."
 	displayNotification 'More than one destination partition. EFI Clone Script did not run!'
-	exit 0
+	exit 1
 fi
 
 ### Mount the targets ###
