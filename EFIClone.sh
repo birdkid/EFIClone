@@ -22,7 +22,7 @@ TEST_SWITCH="Y"
 # we write to the "Shared" folder instead.
 LOG_FILE="/Users/Shared/EFIClone.log"
 
-### STOP USER VARIABLES ###
+### END USER VARIABLES ###
 
 
 ### Method Definitions ###
