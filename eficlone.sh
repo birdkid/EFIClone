@@ -161,3 +161,5 @@ if [[ -z "$dryMode" ]]; then
 fi
 
 writeTolog 'EFI Clone Script completed.'
+
+exit 0
