@@ -65,3 +65,16 @@ If you need to remove the script you can click on the `X` icon to detach the scr
 1. Check the box that says `Run shell script after copy completes` and click on `Choose...`
 1. Use the file selector window to select `eficlone_superduper.sh` from the folder you moved it to after downloading.
 1. After you have selected the script your task should have the script name `eficlone_superduper.sh` showing next to the `Run shell script after copy completes` line.
+
+### CLI
+
+See CLI's help:
+```bash
+eficlone.sh --help
+```
+
+## Common Issues
+
+- _Mounting EFI source partition failed. Exiting._
+
+  Mounting EFI partitions may require higher privileges. When running `eficlone.sh` directly, try running with `sudo eficlone.sh`.
