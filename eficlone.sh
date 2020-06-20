@@ -33,18 +33,18 @@ done
 [[ "$sourceVolume" == '' ]] && usage 'Please specify a source volume.'
 [[ "$destinationVolume" == '' ]] && usage 'Please specify a destination volume.'
 
-writeTolog 'Starting EFI Clone Script...'
+echoLog 'Starting EFI Clone Script...'
 
 if [[ -n "$dryMode" ]]; then
-	writeTolog "Running $0 in dry mode..."
+	echoLog "Running $0 in dry mode..."
 else
-	writeTolog "Running $0..."
+	echoLog "Running $0..."
 fi
 
 
 ### Figure out source target ###
 
-writeTolog "sourceVolume = $sourceVolume"
+echoLog "sourceVolume = $sourceVolume"
 
 sourceVolumeDisk="$( getDiskNumber "$sourceVolume" )"
 
@@ -60,22 +60,22 @@ if [[ "$sourceVolumeDisk" == "" ]]; then
 	failGracefully 'Source Volume Disk not found.'
 fi
 
-writeTolog "sourceVolumeDisk = $sourceVolumeDisk"
+echoLog "sourceVolumeDisk = $sourceVolumeDisk"
 
 sourceEFIPartition="$( getEFIPartition "$sourceVolumeDisk" )"
-writeTolog "sourceEFIPartition = $sourceEFIPartition"
+echoLog "sourceEFIPartition = $sourceEFIPartition"
 
 
 ### Figure out destination target ###
 
-writeTolog "destinationVolume = $destinationVolume"
+echoLog "destinationVolume = $destinationVolume"
 
 destinationVolumeDisk="$( getDiskNumber "$destinationVolume" )"
 
-writeTolog "destinationVolumeDisk = $destinationVolumeDisk"
+echoLog "destinationVolumeDisk = $destinationVolumeDisk"
 
 destinationEFIPartition="$( getEFIPartition "$destinationVolumeDisk" )"
-writeTolog "destinationEFIPartition = $destinationEFIPartition"
+echoLog "destinationEFIPartition = $destinationEFIPartition"
 
 
 ### Sanity checks ###
@@ -114,52 +114,52 @@ if (( $? != 0 )); then
 	failGracefully 'Mounting EFI destination partition failed.'
 fi
 
-writeTolog 'Drives mounted.'
+echoLog 'Drives mounted.'
 sourceEFIMountPoint="$( getDiskMountPoint "$sourceEFIPartition" )"
-writeTolog "sourceEFIMountPoint = $sourceEFIMountPoint"
+echoLog "sourceEFIMountPoint = $sourceEFIMountPoint"
 
 destinationEFIMountPoint="$( getDiskMountPoint "$destinationEFIPartition" )"
-writeTolog "destinationEFIMountPoint = $destinationEFIMountPoint"
+echoLog "destinationEFIMountPoint = $destinationEFIMountPoint"
 
 
 ### Execute the synchronization ###
 
 if [[ -n "$dryMode" ]]; then
-	writeTolog 'Simulating file synchronization...'
-	writeTolog 'The following rsync command will be executed with the "--dry-run" option:'
-	writeTolog "rsync -av --exclude='.*'' \"$sourceEFIMountPoint/\" \"$destinationEFIMountPoint/\""
-	writeTolog "THE BELOW OUTPUT IS FROM AN RSYNC DRY RUN! NO DATA HAS BEEN MODIFIED!"
-	writeTolog "----------------------------------------"
+	echoLog 'Simulating file synchronization...'
+	echoLog 'The following rsync command will be executed with the "--dry-run" option:'
+	echoLog "rsync -av --exclude='.*'' \"$sourceEFIMountPoint/\" \"$destinationEFIMountPoint/\""
+	echoLog "THE BELOW OUTPUT IS FROM AN RSYNC DRY RUN! NO DATA HAS BEEN MODIFIED!"
+	echoLog "----------------------------------------"
 	rsync --dry-run -av --exclude=".*" --delete "$sourceEFIMountPoint/" "$destinationEFIMountPoint/"
-	writeTolog "----------------------------------------"
+	echoLog "----------------------------------------"
 else
-	writeTolog "Synchronizing files from $sourceEFIMountPoint/EFI to $destinationEFIMountPoint..."
-	writeTolog "----------------------------------------"
+	echoLog "Synchronizing files from $sourceEFIMountPoint/EFI to $destinationEFIMountPoint..."
+	echoLog "----------------------------------------"
 	rsync -av --exclude=".*" --delete "$sourceEFIMountPoint/" "$destinationEFIMountPoint/"
-	writeTolog "----------------------------------------"
+	echoLog "----------------------------------------"
 fi
 
-writeTolog 'Comparing checksums of EFI directories...'
-writeTolog "----------------------------------------"
+echoLog 'Comparing checksums of EFI directories...'
+echoLog "----------------------------------------"
 sourceEFIHash="$( collectEFIHash "$sourceEFIMountPoint" )"
 destinationEFIHash="$( collectEFIHash "$destinationEFIMountPoint" )"
-writeTolog "----------------------------------------"
-writeTolog "Source directory hash: $sourceEFIHash."
-writeTolog "Destination directory hash: $destinationEFIHash."
+echoLog "----------------------------------------"
+echoLog "Source directory hash: $sourceEFIHash."
+echoLog "Destination directory hash: $destinationEFIHash."
 
 diskutil quiet unmount /dev/$destinationEFIPartition
 diskutil quiet unmount /dev/$sourceEFIPartition
-writeTolog 'EFI partitions unmounted.'
+echoLog 'EFI partitions unmounted.'
 
 if [[ -z "$dryMode" ]]; then
 	if [[ "$sourceEFIHash" == "$destinationEFIHash" ]]; then
-		writeTolog "Directory hashes match; files copied successfully."
+		echoLog "Directory hashes match; files copied successfully."
 		displayNotification 'EFI Clone Script completed successfully.'
 	else
 		failGracefully 'Directory hashes differ; copying failed.' 'EFI copied unsuccessfully; files do not match source.'
 	fi
 fi
 
-writeTolog 'EFI Clone Script completed.'
+echoLog 'EFI Clone Script completed.'
 
 exit 0

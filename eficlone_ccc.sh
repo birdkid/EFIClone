@@ -17,20 +17,20 @@ source eficlone_postflight_settings.sh
 function main () {
 	validateParamCount 4 $#
 
-	writeTolog 'Running in "Carbon Copy Cloner" mode:'
-	writeTolog "1: Source Path = $1"
-	writeTolog "2: Destination Path = $2"
-	writeTolog "3: CCC Exit Status = $3"
-	writeTolog "4: Disk image file path = $4"
+	echoLog 'Running in "Carbon Copy Cloner" mode:'
+	echoLog "1: Source Path = $1"
+	echoLog "2: Destination Path = $2"
+	echoLog "3: CCC Exit Status = $3"
+	echoLog "4: Disk image file path = $4"
 
 	if [[ "$3" == "0" ]]; then
-		writeTolog 'Check passed: CCC completed with success.'
+		echoLog 'Check passed: CCC completed with success.'
 	else
 		failGracefully 'CCC did not exit with success.' 'CCC task failed.'
 	fi
 
 	if [[ "$4" == "" ]]; then
-		writeTolog "Check passed: CCC clone was not to a disk image."
+		echoLog "Check passed: CCC clone was not to a disk image."
 	else
 		failGracefully 'CCC clone destination was a disk image file.' 'CCC disk image clone destinations are not supported.'
 	fi

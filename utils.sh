@@ -14,7 +14,7 @@ function usage () {
   [ -n "$1" ] && exit 1 || exit 0
 }
 
-function writeTolog () {
+function echoLog () {
 	echo "[`date`] - ${*}"
 }
 
@@ -23,7 +23,7 @@ function displayNotification () {
 }
 
 function failGracefully () {
-	writeTolog "$1 Exiting."
+	echoLog "$1 Exiting."
 	displayNotification "${2:-$logMsg} EFI Clone Script failed."
 	exit "${3:-1}"
 }
@@ -109,6 +109,6 @@ function getDeviceIDfromUUID () {
 }
 
 function getDiskIDfromUUID () {
-	writeTolog "$1"
+	echoLog "$1"
 	echo "$( diskutil info "$1" | grep 'Device Identifier' | rev | cut -d ' ' -f 1 | rev )"
 }
