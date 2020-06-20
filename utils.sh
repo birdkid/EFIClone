@@ -35,7 +35,7 @@ function validateParamCount () {
 }
 
 function getDiskNumber () {
-	diskutil info "$1" | grep 'Part of Whole' | rev | cut -d ' ' -f1 | rev
+	diskutil info "$1" 2>/dev/null | grep 'Part of Whole' | rev | cut -d ' ' -f1 | rev
 }
 
 function getCoreStoragePhysicalDiskNumber () {

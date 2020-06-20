@@ -47,22 +47,22 @@ fi
 echoLog "sourceVolume = $sourceVolume"
 
 sourceVolumeDisk="$( getDiskNumber "$sourceVolume" )"
-
 # If we can't figure out the path, we're probably running on Mojave or later, where CCC creates a temporary mount point
 # We use the help of "df" to output the volume of that mount point, afterwards it's business as usual
 if [[ "$sourceVolumeDisk" == "" ]]; then
-	sourceVolume=$( df "$sourceVolume" | grep /dev | cut -d ' ' -f 1 | cut -d '@' -f 2 )
-	sourceVolumeDisk="$( getDiskNumber "$sourceVolume" )"
+	sourceVolume=$( df "$sourceVolume" 2>/dev/null | grep /dev | cut -d ' ' -f 1 | cut -d '@' -f 2 )
+	if [[ "$sourceVolume" != "" ]]; then
+		sourceVolumeDisk="$( getDiskNumber "$sourceVolume" )"
+	fi
 fi
 
-# If it's still empty, we got passed an invalid path, so we exit
 if [[ "$sourceVolumeDisk" == "" ]]; then
 	failGracefully 'Source Volume Disk not found.'
 fi
 
-echoLog "sourceVolumeDisk = $sourceVolumeDisk"
-
 sourceEFIPartition="$( getEFIPartition "$sourceVolumeDisk" )"
+
+echoLog "sourceVolumeDisk = $sourceVolumeDisk"
 echoLog "sourceEFIPartition = $sourceEFIPartition"
 
 
@@ -72,9 +72,13 @@ echoLog "destinationVolume = $destinationVolume"
 
 destinationVolumeDisk="$( getDiskNumber "$destinationVolume" )"
 
-echoLog "destinationVolumeDisk = $destinationVolumeDisk"
+if [[ "$destinationVolumeDisk" == "" ]]; then
+	failGracefully 'Destination Volume Disk not found.'
+fi
 
 destinationEFIPartition="$( getEFIPartition "$destinationVolumeDisk" )"
+
+echoLog "destinationVolumeDisk = $destinationVolumeDisk"
 echoLog "destinationEFIPartition = $destinationEFIPartition"
 
 
