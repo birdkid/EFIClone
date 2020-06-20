@@ -129,23 +129,27 @@ if [[ -n "$dryMode" ]]; then
 	echoLog 'The following rsync command will be executed with the "--dry-run" option:'
 	echoLog "rsync -av --exclude='.*'' \"$sourceEFIMountPoint/\" \"$destinationEFIMountPoint/\""
 	echoLog "THE BELOW OUTPUT IS FROM AN RSYNC DRY RUN! NO DATA HAS BEEN MODIFIED!"
-	echoLog "----------------------------------------"
+	echo '----------------------------------------'
 	rsync --dry-run -av --exclude=".*" --delete "$sourceEFIMountPoint/" "$destinationEFIMountPoint/"
-	echoLog "----------------------------------------"
+	echo '----------------------------------------'
 else
 	echoLog "Synchronizing files from $sourceEFIMountPoint/EFI to $destinationEFIMountPoint..."
-	echoLog "----------------------------------------"
+	echo '----------------------------------------'
 	rsync -av --exclude=".*" --delete "$sourceEFIMountPoint/" "$destinationEFIMountPoint/"
-	echoLog "----------------------------------------"
+	echo '----------------------------------------'
 fi
 
 echoLog 'Comparing checksums of EFI directories...'
-echoLog "----------------------------------------"
+echoLog "Source directory hash:"
+echo '----------------------------------------'
 sourceEFIHash="$( collectEFIHash "$sourceEFIMountPoint" )"
+echo -e "$sourceEFIHash"
+echo '----------------------------------------'
+echoLog "Destination directory hash:"
+echo '----------------------------------------'
 destinationEFIHash="$( collectEFIHash "$destinationEFIMountPoint" )"
-echoLog "----------------------------------------"
-echoLog "Source directory hash: $sourceEFIHash."
-echoLog "Destination directory hash: $destinationEFIHash."
+echo -e "$destinationEFIHash"
+echo '----------------------------------------'
 
 diskutil quiet unmount /dev/$destinationEFIPartition
 diskutil quiet unmount /dev/$sourceEFIPartition
