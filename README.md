@@ -50,18 +50,18 @@ The configuration of both utilities is similar, but not identical. See the follo
 ### Carbon Copy Cloner
 
 1. Create a Clone task as you normally would, defining the Source and Destination partitions.
-2. Click on the `Advanced Settings` button, just below the Source partition.
-3. The advanced settings pane will open. If necessary, scroll down until you can see the section labeled `AFTER COPYING FILES` and click on the folder icon next to `Run a Shell Script:`
-4. Use the file selector window to select `eficlone_ccc.sh` from the folder you moved it to after downloading.
-5. After you have selected the script your task should have the script name `eficlone_ccc.sh` showing next to the `Run a Shell Script:` line.
+1. Click on the `Advanced Settings` button, just below the Source partition.
+1. The advanced settings pane will open. If necessary, scroll down until you can see the section labeled `AFTER COPYING FILES` and click on the folder icon next to `Run a Shell Script:`
+1. Use the file selector window to select `eficlone_ccc.sh` from the folder you moved it to after downloading.
+1. After you have selected the script your task should have the script name `eficlone_ccc.sh` showing next to the `Run a Shell Script:` line.
 
 If you need to remove the script you can click on the `X` icon to detach the script from your CCC Task.
 
 ### SuperDuper!
 
 1. Choose your Source and Destination partitions in the `Copy` and `to` dropdown menus.
-2. Click on the `Options...` button.
-3. This will display the `General` options tab. Click on `Advanced` to show the advanced options pane.
-4. Check the box that says `Run shell script after copy completes` and click on `Choose...`
-5. Use the file selector window to select `eficlone_superduper.sh` from the folder you moved it to after downloading.
-67. After you have selected the script your task should have the script name `eficlone_superduper.sh` showing next to the `Run shell script after copy completes` line.
+1. Click on the `Options...` button.
+1. This will display the `General` options tab. Click on `Advanced` to show the advanced options pane.
+1. Check the box that says `Run shell script after copy completes` and click on `Choose...`
+1. Use the file selector window to select `eficlone_superduper.sh` from the folder you moved it to after downloading.
+1. After you have selected the script your task should have the script name `eficlone_superduper.sh` showing next to the `Run shell script after copy completes` line.
