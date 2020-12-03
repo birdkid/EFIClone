@@ -542,10 +542,10 @@ function main() {
     fi
 
     pushd "$source_efi_mount_point/" > /dev/null
-    source_efi_hash='$(get_efi_directory_hash "$source_efi_mount_point")'
+    source_efi_hash="$(get_efi_directory_hash "$source_efi_mount_point")"
     popd  > /dev/null
     pushd "$destination_efi_mount_point/"  > /dev/null
-    destination_efi_hash='$(get_efi_directory_hash "$destination_efi_mount_point")'
+    destination_efi_hash="$(get_efi_directory_hash "$destination_efi_mount_point")"
     popd > /dev/null
 
     verbose_print "Source EFI Hash: $source_efi_hash"
