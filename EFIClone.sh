@@ -431,7 +431,7 @@ function main() {
     elif [[ $param_count == "4" ]]; then
         pretty_print "Called from " "$fg_white" 0
         pretty_print "CarbonCopyCloner" "$fg_cyan"
-        if [[ "$3" == "0" ]]; then
+        if [[ "$3" == "0" || "$3" == "2150" ]]; then
             verbose_print "CCC completed with success, the EFI Clone Script will run."
         else
             script_exit "CCC did not exit with success, the EFI Clone Script will not run." 1
