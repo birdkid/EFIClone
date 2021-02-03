@@ -19,15 +19,15 @@ source utils.sh
 source eficlone_postflight_settings.sh
 
 function main() {
-	validateParamCount 6 $#
+	validate_param_count 6 $#
 
-	echoLog 'Running in "SuperDuper" mode:'
-	echoLog "1: Source Disk Name = $1"
-	echoLog "2: Source Mount Path = $2"
-	echoLog "3: Destination Disk Name = $3"
-	echoLog "4: Destination Mount Path = $4"
-	echoLog "5: SuperDuper! Backup Script Used = $5"
-	echoLog "6: Unused parameter 6 = $6"
+	echo_log 'Running in "SuperDuper" mode:'
+	echo_log "1: Source Disk Name = $1"
+	echo_log "2: Source Mount Path = $2"
+	echo_log "3: Destination Disk Name = $3"
+	echo_log "4: Destination Mount Path = $4"
+	echo_log "5: SuperDuper! Backup Script Used = $5"
+	echo_log "6: Unused parameter 6 = $6"
 
 	sourceVolume=$2
 	destinationVolume=$4

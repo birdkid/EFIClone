@@ -36,78 +36,78 @@ done
 [[ "$sourceVolume" == '' ]] && usage 'Please specify a source volume.'
 [[ "$destinationVolume" == '' ]] && usage 'Please specify a destination volume.'
 
-echoLog 'Starting EFI Clone Script...'
+echo_log 'Starting EFI Clone Script...'
 
 if [[ -n "$dryMode" ]]; then
-	echoLog "Running $0 in dry mode..."
+	echo_log "Running $0 in dry mode..."
 else
-	echoLog "Running $0..."
+	echo_log "Running $0..."
 fi
 
 
 ## Source Target.
 
-echoLog "sourceVolume = $sourceVolume"
+echo_log "sourceVolume = $sourceVolume"
 
-sourceVolumeDisk="$(getDiskNumber "$sourceVolume")"
+sourceVolumeDisk="$(get_disk_number "$sourceVolume")"
 # If we can't figure out the path, we're probably running on Mojave or later,
 # where CCC creates a temporary mount point. We use the help of "df" to output
 # the volume of that mount point, afterwards it's business as usual.
 if [[ "$sourceVolumeDisk" == "" ]]; then
 	sourceVolume=$( df "$sourceVolume" 2>/dev/null | grep /dev | cut -d ' ' -f 1 | cut -d '@' -f 2 )
 	if [[ "$sourceVolume" != "" ]]; then
-		sourceVolumeDisk="$(getDiskNumber "$sourceVolume")"
+		sourceVolumeDisk="$(get_disk_number "$sourceVolume")"
 	fi
 fi
 
 if [[ "$sourceVolumeDisk" == "" ]]; then
-	failGracefully 'Source Volume Disk not found.'
+	fail_gracefully 'Source Volume Disk not found.'
 fi
 
-sourceEFIPartition="$(getEFIPartition "$sourceVolumeDisk")"
+sourceEFIPartition="$(get_efi_partition "$sourceVolumeDisk")"
 
-echoLog "sourceVolumeDisk = $sourceVolumeDisk"
-echoLog "sourceEFIPartition = $sourceEFIPartition"
+echo_log "sourceVolumeDisk = $sourceVolumeDisk"
+echo_log "sourceEFIPartition = $sourceEFIPartition"
 
 
 ## Destination Target.
 
-echoLog "destinationVolume = $destinationVolume"
+echo_log "destinationVolume = $destinationVolume"
 
-destinationVolumeDisk="$(getDiskNumber "$destinationVolume")"
+destinationVolumeDisk="$(get_disk_number "$destinationVolume")"
 
 if [[ "$destinationVolumeDisk" == "" ]]; then
-	failGracefully 'Destination Volume Disk not found.'
+	fail_gracefully 'Destination Volume Disk not found.'
 fi
 
-destinationEFIPartition="$(getEFIPartition "$destinationVolumeDisk")"
+destinationEFIPartition="$(get_efi_partition "$destinationVolumeDisk")"
 
-echoLog "destinationVolumeDisk = $destinationVolumeDisk"
-echoLog "destinationEFIPartition = $destinationEFIPartition"
+echo_log "destinationVolumeDisk = $destinationVolumeDisk"
+echo_log "destinationEFIPartition = $destinationEFIPartition"
 
 
 ## Sanity Checks.
 
 if [[ "$sourceEFIPartition" == "" ]]; then
-	failGracefully 'EFI source partition not found.'
+	fail_gracefully 'EFI source partition not found.'
 fi
 
 if [[ "$destinationEFIPartition" == "" ]]; then
-	failGracefully 'EFI destination partition not found.'
+	fail_gracefully 'EFI destination partition not found.'
 fi
 
 if [[ "$sourceEFIPartition" == "$destinationEFIPartition" ]]; then
-	failGracefully 'EFI source and destination partitions are the same.'
+	fail_gracefully 'EFI source and destination partitions are the same.'
 fi
 
 sourceEFIPartitionSplit=($sourceEFIPartition)
 if [ "${#sourceEFIPartitionSplit[@]}" -gt 1 ]; then
-	failGracefully 'Multiple EFI source partitions found.'
+	fail_gracefully 'Multiple EFI source partitions found.'
 fi
 
 destinationEFIPartitionSplit=($destinationEFIPartition)
 if [ "${#destinationEFIPartitionSplit[@]}" -gt 1 ]; then
-	failGracefully 'Multiple EFI destination partitions found.'
+	fail_gracefully 'Multiple EFI destination partitions found.'
 fi
 
 
@@ -115,34 +115,34 @@ fi
 
 diskutil quiet mount readOnly /dev/$sourceEFIPartition
 if (( $? != 0 )); then
-	failGracefully 'Mounting EFI source partition failed.'
+	fail_gracefully 'Mounting EFI source partition failed.'
 fi
 
 diskutil quiet mount /dev/$destinationEFIPartition
 if (( $? != 0 )); then
-	failGracefully 'Mounting EFI destination partition failed.'
+	fail_gracefully 'Mounting EFI destination partition failed.'
 fi
 
-echoLog 'Drives mounted.'
-sourceEFIMountPoint="$(getDiskMountPoint "$sourceEFIPartition")"
-echoLog "sourceEFIMountPoint = $sourceEFIMountPoint"
+echo_log 'Drives mounted.'
+sourceEFIMountPoint="$(get_disk_mount_point "$sourceEFIPartition")"
+echo_log "sourceEFIMountPoint = $sourceEFIMountPoint"
 
-destinationEFIMountPoint="$(getDiskMountPoint "$destinationEFIPartition")"
-echoLog "destinationEFIMountPoint = $destinationEFIMountPoint"
+destinationEFIMountPoint="$(get_disk_mount_point "$destinationEFIPartition")"
+echo_log "destinationEFIMountPoint = $destinationEFIMountPoint"
 
 
 ## Synchronize.
 
 if [[ -n "$dryMode" ]]; then
-	echoLog 'Simulating file synchronization...'
-	echoLog 'The following rsync command will be executed with the "--dry-run" option:'
-	echoLog "rsync -av --exclude='.*'' \"$sourceEFIMountPoint/\" \"$destinationEFIMountPoint/\""
-	echoLog "THE BELOW OUTPUT IS FROM AN RSYNC DRY RUN! NO DATA HAS BEEN MODIFIED!"
+	echo_log 'Simulating file synchronization...'
+	echo_log 'The following rsync command will be executed with the "--dry-run" option:'
+	echo_log "rsync -av --exclude='.*'' \"$sourceEFIMountPoint/\" \"$destinationEFIMountPoint/\""
+	echo_log "THE BELOW OUTPUT IS FROM AN RSYNC DRY RUN! NO DATA HAS BEEN MODIFIED!"
 	echo '----------------------------------------'
 	rsync --dry-run -av --exclude=".*" --delete "$sourceEFIMountPoint/" "$destinationEFIMountPoint/"
 	echo '----------------------------------------'
 else
-	echoLog "Synchronizing files from $sourceEFIMountPoint/EFI to $destinationEFIMountPoint..."
+	echo_log "Synchronizing files from $sourceEFIMountPoint/EFI to $destinationEFIMountPoint..."
 	echo '----------------------------------------'
 	rsync -av --exclude=".*" --delete "$sourceEFIMountPoint/" "$destinationEFIMountPoint/"
 	echo '----------------------------------------'
@@ -151,31 +151,31 @@ fi
 
 ## Validate Destination.
 
-echoLog 'Comparing checksums of EFI directories...'
-echoLog "Source directory hash:"
+echo_log 'Comparing checksums of EFI directories...'
+echo_log "Source directory hash:"
 echo '----------------------------------------'
-sourceEFIHash="$(collectEFIHash "$sourceEFIMountPoint")"
+sourceEFIHash="$(collect_efi_hash "$sourceEFIMountPoint")"
 echo -e "$sourceEFIHash"
 echo '----------------------------------------'
-echoLog "Destination directory hash:"
+echo_log "Destination directory hash:"
 echo '----------------------------------------'
-destinationEFIHash="$(collectEFIHash "$destinationEFIMountPoint")"
+destinationEFIHash="$(collect_efi_hash "$destinationEFIMountPoint")"
 echo -e "$destinationEFIHash"
 echo '----------------------------------------'
 
 diskutil quiet unmount /dev/$destinationEFIPartition
 diskutil quiet unmount /dev/$sourceEFIPartition
-echoLog 'EFI partitions unmounted.'
+echo_log 'EFI partitions unmounted.'
 
 if [[ -z "$dryMode" ]]; then
 	if [[ "$sourceEFIHash" == "$destinationEFIHash" ]]; then
-		echoLog "Directory hashes match; files copied successfully."
-		displayNotification 'EFI Clone Script completed successfully.'
+		echo_log "Directory hashes match; files copied successfully."
+		display_notification 'EFI Clone Script completed successfully.'
 	else
-		failGracefully 'Directory hashes differ; copying failed.' 'EFI copied unsuccessfully; files do not match source.'
+		fail_gracefully 'Directory hashes differ; copying failed.' 'EFI copied unsuccessfully; files do not match source.'
 	fi
 fi
 
-echoLog 'EFI Clone Script completed.'
+echo_log 'EFI Clone Script completed.'
 
 exit 0
