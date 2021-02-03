@@ -55,8 +55,9 @@ function getEFIPartition () {
 	local disk=$volumeDisk
 	local EFIPartition="$( getEFIVolume "$disk" )"
 
-	# If we don't find an EFI partition on the disk that was identified by the volume path
-	# we check to see if it is a coreStorage volume and get the disk number from there
+	# If we don't find an EFI partition on the disk that was identified by the
+	# volume path, we check to see if it is a coreStorage volume and get the disk
+	# number from there.
 	if [[ "$EFIPartition" == "" ]]; then
 		disk='disk'"$( getCoreStoragePhysicalDiskNumber "$volumeDisk" )"
 		if [[ "$disk" == "disk" ]]; then
@@ -65,8 +66,8 @@ function getEFIPartition () {
 		EFIPartition="$( getEFIVolume "$disk" )"
 	fi
 
-	# If we still don't have an EFI partition then we check to see if the volumeDisk is an APFS
-	# volume and find its physical disk
+	# If we still don't have an EFI partition then we check to see if the
+	# volumeDisk is an APFS volume and find its physical disk.
 	if [[ "$EFIPartition" == "" ]]; then
 		disk='disk'"$( getAPFSPhysicalDiskNumber "$volumeDisk" )"
 		EFIPartition="$( getEFIVolume "$disk" )"
