@@ -39,11 +39,11 @@ function main() {
 		fail_gracefully 'CCC clone destination was a disk image file.' 'CCC disk image clone destinations are not supported.'
 	fi
 
-	sourceVolume=$1
-	destinationVolume=$2
+	local source_volume=$1
+	local destination_volume=$2
 
  	[[ "$TEST_SWITCH" == "Y" ]] && dryFlag='--dry-run'
-	bash ./eficlone.sh $dryFlag "$sourceVolume" "$destinationVolume"
+	bash ./eficlone.sh $dryFlag "$source_volume" "$destination_volume"
 }
 
 [[ -f "$LOG_FILE" ]] && rm "$LOG_FILE"

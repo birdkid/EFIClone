@@ -51,25 +51,25 @@ function get_efi_volume() {
 }
 
 function get_efi_partition() {
-	local volumeDisk="$1"
-	local disk=$volumeDisk
+	local volume_disk="$1"
+	local disk=$volume_disk
 	local EFIPartition="$(get_efi_volume "$disk")"
 
 	# If we don't find an EFI partition on the disk that was identified by the
 	# volume path, we check to see if it is a coreStorage volume and get the disk
 	# number from there.
 	if [[ "$EFIPartition" == "" ]]; then
-		disk='disk'"$(get_core_storage_physical_disk_number "$volumeDisk")"
+		disk='disk'"$(get_core_storage_physical_disk_number "$volume_disk")"
 		if [[ "$disk" == "disk" ]]; then
-			disk=$volumeDisk
+			disk=$volume_disk
 		fi
 		EFIPartition="$(get_efi_volume "$disk")"
 	fi
 
 	# If we still don't have an EFI partition then we check to see if the
-	# volumeDisk is an APFS volume and find its physical disk.
+	# volume_disk is an APFS volume and find its physical disk.
 	if [[ "$EFIPartition" == "" ]]; then
-		disk='disk'"$(get_apfs_physical_disk_number "$volumeDisk")"
+		disk='disk'"$(get_apfs_physical_disk_number "$volume_disk")"
 		EFIPartition="$(get_efi_volume "$disk")"
 	fi
 
@@ -89,10 +89,10 @@ function log_efi_directory_hash_details() {
 }
 
 function collect_efi_hash() {
-	local EFIMountPoint="$1"
-	pushd "$EFIMountPoint/" > /dev/null
-	EFIHash="$(get_efi_directory_hash "$EFIMountPoint/EFI")"
-	log_efi_directory_hash_details "$EFIMountPoint"
+	local efi_mount_point="$1"
+	pushd "$efi_mount_point/" > /dev/null
+	EFIHash="$(get_efi_directory_hash "$efi_mount_point/EFI")"
+	log_efi_directory_hash_details "$efi_mount_point"
 	popd > /dev/null
 	echo "$EFIHash"
 }

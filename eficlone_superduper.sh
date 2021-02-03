@@ -29,11 +29,11 @@ function main() {
 	echo_log "5: SuperDuper! Backup Script Used = $5"
 	echo_log "6: Unused parameter 6 = $6"
 
-	sourceVolume=$2
-	destinationVolume=$4
+	local source_volume=$2
+	local destination_volume=$4
 
  	[[ "$TEST_SWITCH" == "Y" ]] && dryFlag='--dry-run'
-	bash ./eficlone.sh --dry-run "$sourceVolume" "$destinationVolume"
+	bash ./eficlone.sh --dry-run "$source_volume" "$destination_volume"
 }
 
 [[ -f "$LOG_FILE" ]] && rm "$LOG_FILE"
