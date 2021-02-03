@@ -27,7 +27,7 @@ function main () {
 	echoLog "3: CCC Exit Status = $3"
 	echoLog "4: Disk image file path = $4"
 
-	if [[ "$3" == "0" ]]; then
+	if [[ "$3" == "0" || "$3" == "2150" ]]; then
 		echoLog 'Check passed: CCC completed with success.'
 	else
 		failGracefully 'CCC did not exit with success.' 'CCC task failed.'
