@@ -18,7 +18,7 @@
 source utils.sh
 source eficlone_postflight_settings.sh
 
-function main () {
+function main() {
 	validateParamCount 6 $#
 
 	echoLog 'Running in "SuperDuper" mode:'

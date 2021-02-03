@@ -49,14 +49,14 @@ fi
 
 echoLog "sourceVolume = $sourceVolume"
 
-sourceVolumeDisk="$( getDiskNumber "$sourceVolume" )"
+sourceVolumeDisk="$(getDiskNumber "$sourceVolume")"
 # If we can't figure out the path, we're probably running on Mojave or later,
 # where CCC creates a temporary mount point. We use the help of "df" to output
 # the volume of that mount point, afterwards it's business as usual.
 if [[ "$sourceVolumeDisk" == "" ]]; then
 	sourceVolume=$( df "$sourceVolume" 2>/dev/null | grep /dev | cut -d ' ' -f 1 | cut -d '@' -f 2 )
 	if [[ "$sourceVolume" != "" ]]; then
-		sourceVolumeDisk="$( getDiskNumber "$sourceVolume" )"
+		sourceVolumeDisk="$(getDiskNumber "$sourceVolume")"
 	fi
 fi
 
@@ -64,7 +64,7 @@ if [[ "$sourceVolumeDisk" == "" ]]; then
 	failGracefully 'Source Volume Disk not found.'
 fi
 
-sourceEFIPartition="$( getEFIPartition "$sourceVolumeDisk" )"
+sourceEFIPartition="$(getEFIPartition "$sourceVolumeDisk")"
 
 echoLog "sourceVolumeDisk = $sourceVolumeDisk"
 echoLog "sourceEFIPartition = $sourceEFIPartition"
@@ -74,13 +74,13 @@ echoLog "sourceEFIPartition = $sourceEFIPartition"
 
 echoLog "destinationVolume = $destinationVolume"
 
-destinationVolumeDisk="$( getDiskNumber "$destinationVolume" )"
+destinationVolumeDisk="$(getDiskNumber "$destinationVolume")"
 
 if [[ "$destinationVolumeDisk" == "" ]]; then
 	failGracefully 'Destination Volume Disk not found.'
 fi
 
-destinationEFIPartition="$( getEFIPartition "$destinationVolumeDisk" )"
+destinationEFIPartition="$(getEFIPartition "$destinationVolumeDisk")"
 
 echoLog "destinationVolumeDisk = $destinationVolumeDisk"
 echoLog "destinationEFIPartition = $destinationEFIPartition"
@@ -124,10 +124,10 @@ if (( $? != 0 )); then
 fi
 
 echoLog 'Drives mounted.'
-sourceEFIMountPoint="$( getDiskMountPoint "$sourceEFIPartition" )"
+sourceEFIMountPoint="$(getDiskMountPoint "$sourceEFIPartition")"
 echoLog "sourceEFIMountPoint = $sourceEFIMountPoint"
 
-destinationEFIMountPoint="$( getDiskMountPoint "$destinationEFIPartition" )"
+destinationEFIMountPoint="$(getDiskMountPoint "$destinationEFIPartition")"
 echoLog "destinationEFIMountPoint = $destinationEFIMountPoint"
 
 
@@ -154,12 +154,12 @@ fi
 echoLog 'Comparing checksums of EFI directories...'
 echoLog "Source directory hash:"
 echo '----------------------------------------'
-sourceEFIHash="$( collectEFIHash "$sourceEFIMountPoint" )"
+sourceEFIHash="$(collectEFIHash "$sourceEFIMountPoint")"
 echo -e "$sourceEFIHash"
 echo '----------------------------------------'
 echoLog "Destination directory hash:"
 echo '----------------------------------------'
-destinationEFIHash="$( collectEFIHash "$destinationEFIMountPoint" )"
+destinationEFIHash="$(collectEFIHash "$destinationEFIMountPoint")"
 echo -e "$destinationEFIHash"
 echo '----------------------------------------'
 
