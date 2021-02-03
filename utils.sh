@@ -24,7 +24,7 @@ function display_notification() {
 
 function fail_gracefully() {
 	echo_log "$1 Exiting."
-	display_notification "${2:-$logMsg} EFI Clone Script failed."
+	display_notification "$2 EFI Clone Script failed."
 	exit "${3:-1}"
 }
 
