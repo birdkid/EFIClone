@@ -1,8 +1,21 @@
-#!/bin/bash
 # EFI Partition Clone Script Utilities
 
+function usage () {
+  [ -n "$1" ] && echo -e "$1\n"
+  echo "Usage: $0 [-n|--dry-run] [-h|--help] SOURCE DEST"
+  echo "  -n, --dry-run  Simulate a clone without actually modifying any files."
+  echo "  -h, --help     Display this help."
+  echo "  SOURCE         The source volume. This can be the source EFI volume, or a"
+  echo "                 sibling volume of the source EFI."
+  echo "  DEST           The destination volume. This can be the destination EFI volume,"
+  echo "                 or a sibling volume of the destination EFI."
+  echo ""
+  echo "Example: $0 --dry-run /Volumes/macOS /Volumes/BackUp"
+  [ -n "$1" ] && exit 1 || exit 0
+}
+
 function writeTolog () {
-	echo "[`date`] - ${*}" >> ${LOG_FILE}
+	echo "[`date`] - ${*}"
 }
 
 function displayNotification () {
@@ -13,6 +26,12 @@ function failGracefully () {
 	writeTolog "$1 Exiting."
 	displayNotification "${2:-$logMsg} EFI Clone Script failed."
 	exit "${3:-1}"
+}
+
+function validateParamCount () {
+	if [[ "$1" != "$2" ]]; then
+		failGracefully "Parameter count of $2 is not supported." 'Unsupported set of parameters received.'
+	fi
 }
 
 function getDiskNumber () {
@@ -65,7 +84,7 @@ function getEFIDirectoryHash () {
 }
 
 function logEFIDirectoryHashDetails () {
-	echo "$( find -s . -not -path '*/\.*' -type f \( ! -iname ".*" \) -print0 | xargs -0 shasum )" >> ${LOG_FILE}
+	echo "$( find -s . -not -path '*/\.*' -type f \( ! -iname ".*" \) -print0 | xargs -0 shasum )"
 }
 
 function collectEFIHash () {

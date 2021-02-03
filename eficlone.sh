@@ -4,83 +4,41 @@
 # Modified by kobaltcore 2019  | cobaltcore@yandex.com  | kobaltkore on GitHub | byteminer on TonyMacx86
 # Modified by Bird-Kid 2020    |                        | Bird-Kid on GitHub   | Bird-Kid on TonyMacx86
 
-# This script is designed to be a "post-flight" script run automatically by CCC at the end of a
-# clone task. It will copy the contents of the source drive's EFI partition to the destination drive's EFI
+# This script will copy the contents of the source drive's EFI partition to the destination drive's EFI
 # partition. It will COMPLETELY DELETE and replace all data on the destination EFI partition.
 
 # THIS SCRIPT MODIFIES DATA AND AS SUCH CAN CAUSE DATA LOSS!
 # Use this at your own risk. We've tried to make it as safe as possible, but nobody's perfect.
 
-
-### START USER VARIABLES ###
-
-# Whether to run in LIVE or DEBUG mode. If this is "Y", this script will operate in dry-run mode, simply logging
-# what it would do without actually doing it.
-# Setting this to any other values (preferably "N") will switch to live mode, in which the operations will be executed.
-TEST_SWITCH="Y"
-
-# The location of the log file. Since the root partition is read-only in Catalina and higher
-# we write to the "Shared" folder instead.
-LOG_FILE="/Users/Shared/EFIClone.log"
-
-### END USER VARIABLES ###
-
-
 source utils.sh
 
-if [[ -f "$LOG_FILE" ]]; then
-	rm $LOG_FILE
-fi
+dryMode=''
+sourceVolume=''
+destinationVolume=''
+while [[ "$#" > 0 ]]; do
+	case "$1" in
+		-n|--dry-run) dryMode=1;;
+		-h|--help) usage;;
+		-*) usage "Unknown parameter received: $1";;
+		*)
+			sourceVolume="$1"
+			destinationVolume="$2"
+			[ -n "$3" ] && usage 'Unknown extra arguments received.'
+			shift
+			;;
+	esac
+	shift
+done
+
+[[ "$sourceVolume" == '' ]] && usage 'Please specify a source volume.'
+[[ "$destinationVolume" == '' ]] && usage 'Please specify a destination volume.'
 
 writeTolog 'Starting EFI Clone Script...'
-writeTolog "Running $0..."
 
-# Determine which disk clone application called the script (based on number of parameters)
-# - log details
-# - set up initial parameters
-# - if possible do app-specific sanity checks in order to exit without taking action if necessary
-if [[ "$#" == "2" ]]; then
-	writeTolog 'Running in "Shell" mode:'
-	writeTolog "1: Source Path = $1"
-	writeTolog "2: Destination Path = $2"
-
-	sourceVolume=$1
-	destinationVolume=$2
-elif [[ "$#" == "4" ]]; then
-	writeTolog 'Running in "Carbon Copy Cloner" mode:'
-	writeTolog "1: Source Path = $1"
-	writeTolog "2: Destination Path = $2"
-	writeTolog "3: CCC Exit Status = $3"
-	writeTolog "4: Disk image file path = $4"
-
-	if [[ "$3" == "0" ]]; then
-		writeTolog 'Check passed: CCC completed with success.'
-	else
-		failGracefully 'CCC did not exit with success.' 'CCC task failed.'
-	fi
-
-	if [[ "$4" == "" ]]; then
-		writeTolog "Check passed: CCC clone was not to a disk image."
-	else
-		failGracefully 'CCC clone destination was a disk image file.' 'CCC disk image clone destinations are not supported.'
-	fi
-
-	sourceVolume=$1
-	destinationVolume=$2
-elif [[ "$#" == "6" ]]; then
-	writeTolog 'Running in "SuperDuper" mode:'
-	writeTolog "1: Source Disk Name = $1"
-	writeTolog "2: Source Mount Path = $2"
-	writeTolog "3: Destination Disk Name = $3"
-	writeTolog "4: Destination Mount Path = $4"
-	writeTolog "5: SuperDuper! Backup Script Used = $5"
-	writeTolog "6: Unused parameter 6 = $6"
-
-	sourceVolume=$2
-	destinationVolume=$4
+if [[ -n "$dryMode" ]]; then
+	writeTolog "Running $0 in dry mode..."
 else
-	echo "Parameter count of $# is not supported."
-	failGracefully "Parameter count of $# is not supported." 'Unsupported set of parameters received.'
+	writeTolog "Running $0..."
 fi
 
 
@@ -166,18 +124,18 @@ writeTolog "destinationEFIMountPoint = $destinationEFIMountPoint"
 
 ### Execute the synchronization ###
 
-if [[ "$TEST_SWITCH" == "Y" ]]; then
+if [[ -n "$dryMode" ]]; then
 	writeTolog 'Simulating file synchronization...'
 	writeTolog 'The following rsync command will be executed with the "--dry-run" option:'
 	writeTolog "rsync -av --exclude='.*'' \"$sourceEFIMountPoint/\" \"$destinationEFIMountPoint/\""
 	writeTolog "THE BELOW OUTPUT IS FROM AN RSYNC DRY RUN! NO DATA HAS BEEN MODIFIED!"
 	writeTolog "----------------------------------------"
-	rsync --dry-run -av --exclude=".*" --delete "$sourceEFIMountPoint/" "$destinationEFIMountPoint/" >> ${LOG_FILE}
+	rsync --dry-run -av --exclude=".*" --delete "$sourceEFIMountPoint/" "$destinationEFIMountPoint/"
 	writeTolog "----------------------------------------"
 else
 	writeTolog "Synchronizing files from $sourceEFIMountPoint/EFI to $destinationEFIMountPoint..."
 	writeTolog "----------------------------------------"
-	rsync -av --exclude=".*" --delete "$sourceEFIMountPoint/" "$destinationEFIMountPoint/" >> ${LOG_FILE}
+	rsync -av --exclude=".*" --delete "$sourceEFIMountPoint/" "$destinationEFIMountPoint/"
 	writeTolog "----------------------------------------"
 fi
 
@@ -193,7 +151,7 @@ diskutil quiet unmount /dev/$destinationEFIPartition
 diskutil quiet unmount /dev/$sourceEFIPartition
 writeTolog 'EFI partitions unmounted.'
 
-if [[ "$TEST_SWITCH" != "Y" ]]; then
+if [[ -z "$dryMode" ]]; then
 	if [[ "$sourceEFIHash" == "$destinationEFIHash" ]]; then
 		writeTolog "Directory hashes match; files copied successfully."
 		displayNotification 'EFI Clone Script completed successfully.'
