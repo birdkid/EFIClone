@@ -19,8 +19,8 @@
 set -euo pipefail
 IFS=$'\n\t'
 
-source utils.sh
-source eficlone_postflight_settings.sh
+source "$APP_DIR/utils.sh"
+source "$APP_DIR/eficlone_postflight_settings.sh"
 
 function main() {
 	validate_param_count 6 $#
@@ -38,7 +38,7 @@ function main() {
 
 	dryFlag=''
  	[[ "$TEST_SWITCH" == "Y" ]] && dryFlag='--dry-run'
-	bash ./eficlone.sh --dry-run "$source_volume" "$destination_volume"
+	bash "$APP_DIR/eficlone.sh" $dryFlag "$source_volume" "$destination_volume"
 }
 
 [[ -f "$LOG_FILE" ]] && rm "$LOG_FILE"

@@ -17,7 +17,9 @@
 set -euo pipefail
 IFS=$'\n\t'
 
-source utils.sh
+APP_DIR="$(dirname "$0")"
+
+source "$APP_DIR/utils.sh"
 
 dry_mode=''
 source_volume=''
