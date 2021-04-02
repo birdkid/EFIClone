@@ -1,7 +1,7 @@
 # EFI Partition Clone Script Utilities
 
 function usage() {
-  [ -n "$1" ] && echo -e "$1\n"
+  [ -n "${1-}" ] && echo -e "$1\n"
   echo "Usage: $0 [-n|--dry-run] [-h|--help] SOURCE DEST"
   echo "  -n, --dry-run  Simulate a clone without actually modifying any files."
   echo "  -h, --help     Display this help."
@@ -11,7 +11,7 @@ function usage() {
   echo "                 or a sibling volume of the destination EFI."
   echo ""
   echo "Example: $0 --dry-run /Volumes/macOS /Volumes/BackUp"
-  [ -n "$1" ] && exit 1 || exit 0
+  [ -n "${1-}" ] && exit 1 || exit 0
 }
 
 function echo_log() {

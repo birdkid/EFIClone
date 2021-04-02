@@ -15,6 +15,10 @@
 # Use this at your own risk.
 # We've tried to make it as safe as possible, but nobody's perfect.
 
+# Strict mode.
+set -euo pipefail
+IFS=$'\n\t'
+
 source utils.sh
 source eficlone_postflight_settings.sh
 
@@ -32,6 +36,7 @@ function main() {
 	local source_volume=$2
 	local destination_volume=$4
 
+	dryFlag=''
  	[[ "$TEST_SWITCH" == "Y" ]] && dryFlag='--dry-run'
 	bash ./eficlone.sh --dry-run "$source_volume" "$destination_volume"
 }

@@ -13,20 +13,24 @@
 # Use this at your own risk.
 # We've tried to make it as safe as possible, but nobody's perfect.
 
+# Strict mode.
+set -euo pipefail
+IFS=$'\n\t'
+
 source utils.sh
 
 dry_mode=''
 source_volume=''
 destination_volume=''
 while [[ "$#" > 0 ]]; do
-	case "$1" in
+	case "${1-}" in
 		-n|--dry-run) dry_mode=1;;
 		-h|--help) usage;;
 		-*) usage "Unknown parameter received: $1";;
 		*)
 			source_volume="$1"
 			destination_volume="$2"
-			[ -n "$3" ] && usage 'Unknown extra arguments received.'
+			[ -n "${3-}" ] && usage 'Unknown extra arguments received.'
 			shift
 			;;
 	esac
